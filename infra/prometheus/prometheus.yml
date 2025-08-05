@@ -1,0 +1,63 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Kafka JMX Metrics
+  - job_name: 'kafka1'
+    static_configs:
+      - targets: ['localhost:9101']
+    metrics_path: /metrics
+
+  - job_name: 'kafka2'
+    static_configs:
+      - targets: ['localhost:9102']
+    metrics_path: /metrics
+
+  - job_name: 'kafka3'
+    static_configs:
+      - targets: ['localhost:9103']
+    metrics_path: /metrics
+
+  # Spring Boot Applications
+  - job_name: 'reference-manager'
+    static_configs:
+      - targets: ['host.docker.internal:8081']
+    metrics_path: /actuator/prometheus
+    scrape_interval: 10s
+
+  - job_name: 'flight-service'
+    static_configs:
+      - targets: ['host.docker.internal:8082']
+    metrics_path: /actuator/prometheus
+    scrape_interval: 10s
+
+  - job_name: 'archive-service'
+    static_configs:
+      - targets: ['host.docker.internal:8083']
+    metrics_path: /actuator/prometheus
+    scrape_interval: 10s
+
+  # Redis Metrics (if Redis Exporter is used)
+  # - job_name: 'redis'
+  #   static_configs:
+  #     - targets: ['localhost:9121']
+
+  # MySQL Metrics (if MySQL Exporter is used)
+  # - job_name: 'mysql'
+  #   static_configs:
+  #     - targets: ['localhost:9104']
+
+  # PostgreSQL Metrics (if PostgreSQL Exporter is used)
+  # - job_name: 'postgresql'
+  #   static_configs:
+  #     - targets: ['localhost:9187'] 

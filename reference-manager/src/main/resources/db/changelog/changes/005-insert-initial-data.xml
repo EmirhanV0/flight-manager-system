@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.25.xsd">
+
+    <!-- =============================================================================
+         Insert Initial Data for Testing and Demo
+         ============================================================================= -->
+    
+    <changeSet id="005-insert-initial-data" author="uys-team">
+        <comment>Insert initial data for testing and demonstration purposes</comment>
+        
+        <!-- Insert Airlines -->
+        <insert tableName="airline">
+            <column name="airline_code" value="TK"/>
+            <column name="airline_name" value="Turkish Airlines"/>
+            <column name="country" value="Turkey"/>
+            <column name="city" value="Istanbul"/>
+            <column name="description" value="National flag carrier of Turkey"/>
+            <column name="active" valueBoolean="true"/>
+            <column name="version" valueNumeric="0"/>
+        </insert>
+        
+        <insert tableName="airline">
+            <column name="airline_code" value="PEG"/>
+            <column name="airline_name" value="Pegasus Airlines"/>
+            <column name="country" value="Turkey"/>
+            <column name="city" value="Istanbul"/>
+            <column name="description" value="Low-cost carrier based in Turkey"/>
+            <column name="active" valueBoolean="true"/>
+            <column name="version" valueNumeric="0"/>
+        </insert>
+        
+        <insert tableName="airline">
+            <column name="airline_code" value="LH"/>
+            <column name="airline_name" value="Lufthansa"/>
+            <column name="country" value="Germany"/>
+            <column name="city" value="Frankfurt"/>
+            <column name="description" value="German flag carrier"/>
+            <column name="active" valueBoolean="true"/>
+            <column name="version" valueNumeric="0"/>
+        </insert>
+        
+        <insert tableName="airline">
+            <column name="airline_code" value="BA"/>
+            <column name="airline_name" value="British Airways"/>
+            <column name="country" value="United Kingdom"/>
+            <column name="city" value="London"/>
+            <column name="description" value="British flag carrier"/>
+            <column name="active" valueBoolean="true"/>
+            <column name="version" valueNumeric="0"/>
+        </insert>
+        
+        <!-- Insert Stations -->
+        <insert tableName="station">
+            <column name="station_code" value="IST"/>
+            <column name="station_name" value="Istanbul Airport"/>
+            <column name="city" value="Istanbul"/>
+            <column name="country" value="Turkey"/>
+            <column name="address" value="Tayakadın, Terminal Caddesi No:1, 34283 Arnavutköy/İstanbul"/>
+            <column name="timezone" value="Europe/Istanbul"/>
+            <column name="latitude" valueNumeric="41.2622"/>
+            <column name="longitude" valueNumeric="28.7278"/>
+            <column name="altitude" valueNumeric="99"/>
+            <column name="description" value="Main international airport of Istanbul"/>
+            <column name="active" valueBoolean="true"/>
+            <column name="version" valueNumeric="0"/>
+        </insert>
+        
+        <insert tableName="station">
+            <column name="station_code" value="SAW"/>
+            <column name="station_name" value="Sabiha Gökçen International Airport"/>
+            <column name="city" value="Istanbul"/>
+            <column name="country" value="Turkey"/>
+            <column name="address" value="Kurtköy, 34912 Pendik/İstanbul"/>
+            <column name="timezone" value="Europe/Istanbul"/>
+            <column name="latitude" valueNumeric="40.8986"/>
+            <column name="longitude" valueNumeric="29.3092"/>
+            <column name="altitude" valueNumeric="95"/>
+            <column name="description" value="Secondary airport of Istanbul"/>
+            <column name="active" valueBoolean="true"/>
+            <column name="version" valueNumeric="0"/>
+        </insert>
+        
+        <insert tableName="station">
+            <column name="station_code" value="FRA"/>
+            <column name="station_name" value="Frankfurt Airport"/>
+            <column name="city" value="Frankfurt"/>
+            <column name="country" value="Germany"/>
+            <column name="address" value="Frankfurt Airport, 60547 Frankfurt am Main, Germany"/>
+            <column name="timezone" value="Europe/Berlin"/>
+            <column name="latitude" valueNumeric="50.0379"/>
+            <column name="longitude" valueNumeric="8.5622"/>
+            <column name="altitude" valueNumeric="111"/>
+            <column name="description" value="Main hub of Lufthansa"/>
+            <column name="active" valueBoolean="true"/>
+            <column name="version" valueNumeric="0"/>
+        </insert>
+        
+        <insert tableName="station">
+            <column name="station_code" value="LHR"/>
+            <column name="station_name" value="Heathrow Airport"/>
+            <column name="city" value="London"/>
+            <column name="country" value="United Kingdom"/>
+            <column name="address" value="Heathrow Airport, Hounslow TW6 1QG, UK"/>
+            <column name="timezone" value="Europe/London"/>
+            <column name="latitude" valueNumeric="51.4700"/>
+            <column name="longitude" valueNumeric="-0.4543"/>
+            <column name="altitude" valueNumeric="25"/>
+            <column name="description" value="Main hub of British Airways"/>
+            <column name="active" valueBoolean="true"/>
+            <column name="version" valueNumeric="0"/>
+        </insert>
+        
+        <!-- Insert Aircraft (after airlines are inserted) -->
+        <insert tableName="aircraft">
+            <column name="registration" value="TC-JRE"/>
+            <column name="aircraft_type" value="A320"/>
+            <column name="model" value="A320-200"/>
+            <column name="manufacturer" value="Airbus"/>
+            <column name="capacity" valueNumeric="180"/>
+            <column name="max_range" valueNumeric="6100"/>
+            <column name="cruise_speed" valueNumeric="828"/>
+            <column name="airline_id" valueNumeric="1"/>
+            <column name="active" valueBoolean="true"/>
+            <column name="version" valueNumeric="0"/>
+        </insert>
+        
+        <insert tableName="aircraft">
+            <column name="registration" value="TC-JRF"/>
+            <column name="aircraft_type" value="A321"/>
+            <column name="model" value="A321-200"/>
+            <column name="manufacturer" value="Airbus"/>
+            <column name="capacity" valueNumeric="220"/>
+            <column name="max_range" valueNumeric="5600"/>
+            <column name="cruise_speed" valueNumeric="828"/>
+            <column name="airline_id" valueNumeric="1"/>
+            <column name="active" valueBoolean="true"/>
+            <column name="version" valueNumeric="0"/>
+        </insert>
+        
+        <insert tableName="aircraft">
+            <column name="registration" value="TC-JRG"/>
+            <column name="aircraft_type" value="B777"/>
+            <column name="model" value="777-300ER"/>
+            <column name="manufacturer" value="Boeing"/>
+            <column name="capacity" valueNumeric="349"/>
+            <column name="max_range" valueNumeric="13650"/>
+            <column name="cruise_speed" valueNumeric="892"/>
+            <column name="airline_id" valueNumeric="1"/>
+            <column name="active" valueBoolean="true"/>
+            <column name="version" valueNumeric="0"/>
+        </insert>
+        
+        <insert tableName="aircraft">
+            <column name="registration" value="TC-CCD"/>
+            <column name="aircraft_type" value="A320"/>
+            <column name="model" value="A320neo"/>
+            <column name="manufacturer" value="Airbus"/>
+            <column name="capacity" valueNumeric="180"/>
+            <column name="max_range" valueNumeric="6500"/>
+            <column name="cruise_speed" valueNumeric="828"/>
+            <column name="airline_id" valueNumeric="2"/>
+            <column name="active" valueBoolean="true"/>
+            <column name="version" valueNumeric="0"/>
+        </insert>
+        
+        <insert tableName="aircraft">
+            <column name="registration" value="D-AIKE"/>
+            <column name="aircraft_type" value="A350"/>
+            <column name="model" value="A350-900"/>
+            <column name="manufacturer" value="Airbus"/>
+            <column name="capacity" valueNumeric="325"/>
+            <column name="max_range" valueNumeric="15000"/>
+            <column name="cruise_speed" valueNumeric="903"/>
+            <column name="airline_id" valueNumeric="3"/>
+            <column name="active" valueBoolean="true"/>
+            <column name="version" valueNumeric="0"/>
+        </insert>
+        
+        <rollback>
+            <delete tableName="aircraft"/>
+            <delete tableName="station"/>
+            <delete tableName="airline"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog> 

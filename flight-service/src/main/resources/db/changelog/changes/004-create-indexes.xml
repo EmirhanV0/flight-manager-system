@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.25.xsd">
+
+    <changeSet id="004-create-flight-indexes" author="uys-team">
+        <!-- Flight table indexes -->
+        <createIndex tableName="flights" indexName="idx_flight_number" unique="true">
+            <column name="flight_number"/>
+        </createIndex>
+        
+        <createIndex tableName="flights" indexName="idx_airline_code">
+            <column name="airline_code"/>
+        </createIndex>
+        
+        <createIndex tableName="flights" indexName="idx_aircraft_registration">
+            <column name="aircraft_registration"/>
+        </createIndex>
+        
+        <createIndex tableName="flights" indexName="idx_departure_station">
+            <column name="departure_station_code"/>
+        </createIndex>
+        
+        <createIndex tableName="flights" indexName="idx_arrival_station">
+            <column name="arrival_station_code"/>
+        </createIndex>
+        
+        <createIndex tableName="flights" indexName="idx_scheduled_departure">
+            <column name="scheduled_departure_time"/>
+        </createIndex>
+        
+        <createIndex tableName="flights" indexName="idx_status">
+            <column name="status"/>
+        </createIndex>
+        
+        <createIndex tableName="flights" indexName="idx_flight_date">
+            <column name="flight_date"/>
+        </createIndex>
+        
+        <!-- Flight legs indexes -->
+        <createIndex tableName="flight_legs" indexName="idx_flight_id">
+            <column name="flight_id"/>
+        </createIndex>
+        
+        <createIndex tableName="flight_legs" indexName="idx_leg_number">
+            <column name="leg_number"/>
+        </createIndex>
+        
+        <!-- Flight schedules indexes -->
+        <createIndex tableName="flight_schedules" indexName="idx_schedule_flight_number">
+            <column name="flight_number"/>
+        </createIndex>
+        
+        <createIndex tableName="flight_schedules" indexName="idx_schedule_airline_code">
+            <column name="airline_code"/>
+        </createIndex>
+        
+        <createIndex tableName="flight_schedules" indexName="idx_schedule_active">
+            <column name="active"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.25.xsd">
+
+    <changeSet id="005-insert-initial-flight-data" author="uys-team" context="dev">
+        <insert tableName="flights">
+            <column name="flight_number" value="TK001"/>
+            <column name="airline_code" value="TK"/>
+            <column name="aircraft_registration" value="TC-JJA"/>
+            <column name="departure_station_code" value="IST"/>
+            <column name="arrival_station_code" value="JFK"/>
+            <column name="flight_date" value="2024-08-01 10:00:00"/>
+            <column name="scheduled_departure_time" value="2024-08-01 10:00:00"/>
+            <column name="scheduled_arrival_time" value="2024-08-01 15:30:00"/>
+            <column name="status" value="SCHEDULED"/>
+            <column name="flight_type" value="INTERNATIONAL"/>
+            <column name="duration_minutes" value="690"/>
+            <column name="distance_km" value="8044"/>
+            <column name="passenger_capacity" value="350"/>
+        </insert>
+        
+        <insert tableName="flights">
+            <column name="flight_number" value="PC001"/>
+            <column name="airline_code" value="PC"/>
+            <column name="aircraft_registration" value="TC-JUA"/>
+            <column name="departure_station_code" value="SAW"/>
+            <column name="arrival_station_code" value="ADB"/>
+            <column name="flight_date" value="2024-08-01 14:00:00"/>
+            <column name="scheduled_departure_time" value="2024-08-01 14:00:00"/>
+            <column name="scheduled_arrival_time" value="2024-08-01 15:15:00"/>
+            <column name="status" value="SCHEDULED"/>
+            <column name="flight_type" value="DOMESTIC"/>
+            <column name="duration_minutes" value="75"/>
+            <column name="distance_km" value="328"/>
+            <column name="passenger_capacity" value="180"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

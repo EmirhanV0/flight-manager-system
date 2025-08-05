@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.25.xsd">
+
+    <changeSet id="003-create-archive-indexes" author="uys-team">
+        <!-- Event log indexes -->
+        <createIndex tableName="event_logs" indexName="idx_event_type">
+            <column name="event_type"/>
+        </createIndex>
+        
+        <createIndex tableName="event_logs" indexName="idx_source_service">
+            <column name="source_service"/>
+        </createIndex>
+        
+        <createIndex tableName="event_logs" indexName="idx_event_timestamp">
+            <column name="event_timestamp"/>
+        </createIndex>
+        
+        <createIndex tableName="event_logs" indexName="idx_entity_type">
+            <column name="entity_type"/>
+        </createIndex>
+        
+        <createIndex tableName="event_logs" indexName="idx_entity_id">
+            <column name="entity_id"/>
+        </createIndex>
+        
+        <!-- Audit log indexes -->
+        <createIndex tableName="audit_logs" indexName="idx_audit_action">
+            <column name="action"/>
+        </createIndex>
+        
+        <createIndex tableName="audit_logs" indexName="idx_audit_service">
+            <column name="service_name"/>
+        </createIndex>
+        
+        <createIndex tableName="audit_logs" indexName="idx_audit_timestamp">
+            <column name="audit_timestamp"/>
+        </createIndex>
+        
+        <createIndex tableName="audit_logs" indexName="idx_audit_user">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

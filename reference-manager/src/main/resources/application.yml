@@ -1,0 +1,242 @@
+# =============================================================================
+# UYS Reference Manager Service Configuration
+# =============================================================================
+
+spring:
+  application:
+    name: reference-manager
+  profiles:
+    active: dev
+  
+  # =============================================================================
+  # DATABASE CONFIGURATION
+  # =============================================================================
+  datasource:
+    url: jdbc:mysql://uys-mysql:3306/uys_reference?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&useUnicode=true&characterEncoding=UTF-8
+    username: uys_user
+    password: uys_password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  
+  # =============================================================================
+  # JPA CONFIGURATION
+  # =============================================================================
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          batch_size: 20
+          fetch_size: 50
+    open-in-view: false
+  
+  # =============================================================================
+  # LIQUIBASE CONFIGURATION
+  # =============================================================================
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    contexts: ${spring.profiles.active}
+  
+  # =============================================================================
+  # REDIS CONFIGURATION
+  # =============================================================================
+  data:
+    redis:
+      host: uys-redis
+      port: 6379
+      password: uys-redis-password
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+  
+  # =============================================================================
+  # KAFKA CONFIGURATION
+  # =============================================================================
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: uys-kafka:9092
+          required-acks: 1
+          replication-factor: 3
+          auto-create-topics: true
+          auto-add-partitions: true
+        streams:
+          binder:
+            configuration:
+              default.key.serde: org.apache.kafka.common.serialization.StringSerde
+              default.value.serde: org.apache.kafka.common.serialization.StringSerde
+              processing.guarantee: exactly_once
+      bindings:
+        airline-events-out:
+          destination: airline-events
+          contentType: application/json
+          producer:
+            partition-count: 3
+            required-acks: 1
+            retries: 3
+            batch-size: 16384
+            linger-ms: 5
+            buffer-memory: 33554432
+        aircraft-events-out:
+          destination: aircraft-events
+          contentType: application/json
+          producer:
+            partition-count: 3
+            required-acks: 1
+            retries: 3
+            batch-size: 16384
+            linger-ms: 5
+            buffer-memory: 33554432
+        station-events-out:
+          destination: station-events
+          contentType: application/json
+          producer:
+            partition-count: 3
+            required-acks: 1
+            retries: 3
+            batch-size: 16384
+            linger-ms: 5
+            buffer-memory: 33554432
+      default:
+        producer:
+          partition-count: 3
+          required-acks: 1
+          retries: 3
+          batch-size: 16384
+          linger-ms: 5
+          buffer-memory: 33554432
+
+# =============================================================================
+# SERVER CONFIGURATION
+# =============================================================================
+server:
+  port: 8085
+  servlet:
+    context-path: /api
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+    min-response-size: 1024
+
+# =============================================================================
+# MANAGEMENT & MONITORING
+# =============================================================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,env,configprops
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+      show-components: always
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+      environment: ${spring.profiles.active}
+  info:
+    env:
+      enabled: true
+    git:
+      mode: full
+
+# =============================================================================
+# LOGGING CONFIGURATION
+# =============================================================================
+logging:
+  level:
+    com.uys.reference: DEBUG
+    org.springframework.cloud.stream: INFO
+    org.springframework.data.redis: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/reference-manager.log
+    max-size: 100MB
+    max-history: 30
+
+# =============================================================================
+# CACHE CONFIGURATION
+# =============================================================================
+cache:
+  redis:
+    time-to-live: 3600
+    cache-null-values: false
+    use-key-prefix: true
+    key-prefix: "uys:reference:"
+
+# =============================================================================
+# SECURITY CONFIGURATION
+# =============================================================================
+security:
+  basic:
+    enabled: false
+  user:
+    name: admin
+    password: admin
+    roles: ADMIN
+
+# =============================================================================
+# SPRINGDOC OPENAPI CONFIGURATION
+# =============================================================================
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    try-it-out-enabled: true
+    filter: true
+    doc-expansion: none
+    default-models-expand-depth: 3
+    default-model-expand-depth: 3
+    operations-sorter: method
+    tags-sorter: alpha
+    disable-swagger-default-url: true
+  show-actuator: true
+  group-configs:
+    - group: 'reference-data'
+      display-name: 'Reference Data APIs'
+      paths-to-match: '/**'
+    - group: 'airline'
+      paths-to-match: '/airlines/**'
+      display-name: 'Airline Management'
+    - group: 'aircraft'  
+      paths-to-match: '/aircraft/**'
+      display-name: 'Aircraft Management'
+    - group: 'station'
+      paths-to-match: '/stations/**'
+      display-name: 'Station Management'
+  servers:
+    - url: http://localhost:8081/api
+      description: Development server 

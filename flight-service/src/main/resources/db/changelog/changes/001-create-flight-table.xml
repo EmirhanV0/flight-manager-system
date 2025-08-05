@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.25.xsd">
+
+    <changeSet id="001-create-flight-table" author="uys-team">
+        <createTable tableName="flights">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="flight_number" type="VARCHAR(10)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="airline_code" type="VARCHAR(3)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="aircraft_registration" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="departure_station_code" type="VARCHAR(4)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="arrival_station_code" type="VARCHAR(4)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="flight_date" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="scheduled_departure_time" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="scheduled_arrival_time" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="actual_departure_time" type="DATETIME"/>
+            <column name="actual_arrival_time" type="DATETIME"/>
+            <column name="status" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="flight_type" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="gate" type="VARCHAR(10)"/>
+            <column name="terminal" type="VARCHAR(10)"/>
+            <column name="delay_minutes" type="INT"/>
+            <column name="duration_minutes" type="INT"/>
+            <column name="distance_km" type="INT"/>
+            <column name="passenger_capacity" type="INT"/>
+            <column name="booked_passengers" type="INT"/>
+            <column name="description" type="VARCHAR(1000)"/>
+            <column name="active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="BIGINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

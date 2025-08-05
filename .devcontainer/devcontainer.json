@@ -1,0 +1,82 @@
+{
+  "name": "UYS Development Environment",
+  "image": "mcr.microsoft.com/devcontainers/java:17",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vscjava.vscode-maven",
+        "vscjava.vscode-java-debug",
+        "vscjava.vscode-java-test",
+        "vscjava.vscode-java-dependency",
+        "ms-vscode.vscode-typescript-next",
+        "bradlc.vscode-tailwindcss",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-json",
+        "redhat.vscode-yaml",
+        "ms-azuretools.vscode-docker",
+        "ms-vscode-remote.remote-containers"
+      ],
+      "settings": {
+        "java.home": "/usr/local/openjdk-17",
+        "java.configuration.updateBuildConfiguration": "automatic",
+        "java.compile.nullAnalysis.mode": "automatic",
+        "java.format.settings.url": "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml",
+        "java.format.settings.profile": "GoogleStyle",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.organizeImports": true
+        }
+      }
+    }
+  },
+  "forwardPorts": [
+    8081,
+    8082,
+    8083,
+    3000,
+    9090,
+    3001,
+    9092,
+    9093,
+    9094,
+    6379,
+    3306,
+    5432
+  ],
+  "portsAttributes": {
+    "8081": {
+      "label": "Reference Manager",
+      "onAutoForward": "notify"
+    },
+    "8082": {
+      "label": "Flight Service",
+      "onAutoForward": "notify"
+    },
+    "8083": {
+      "label": "Archive Service",
+      "onAutoForward": "notify"
+    },
+    "3000": {
+      "label": "Frontend",
+      "onAutoForward": "notify"
+    },
+    "9090": {
+      "label": "Prometheus",
+      "onAutoForward": "notify"
+    },
+    "3001": {
+      "label": "Grafana",
+      "onAutoForward": "notify"
+    }
+  },
+  "postCreateCommand": "echo 'UYS Development Environment Ready!'",
+  "remoteUser": "vscode"
+} 

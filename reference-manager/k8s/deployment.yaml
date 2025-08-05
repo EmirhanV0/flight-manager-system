@@ -1,0 +1,256 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reference-manager
+  namespace: uys-prod
+  labels:
+    app: reference-manager
+    service: reference-manager
+    version: v1
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: reference-manager
+  template:
+    metadata:
+      labels:
+        app: reference-manager
+        service: reference-manager
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/api/actuator/prometheus"
+        prometheus.io/port: "8080"
+    spec:
+      serviceAccountName: reference-manager
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+      containers:
+      - name: reference-manager
+        image: uys/reference-manager:1.0.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "prod"
+        - name: DB_URL
+          valueFrom:
+            secretKeyRef:
+              name: reference-manager-secrets
+              key: db-url
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: reference-manager-secrets
+              key: db-username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: reference-manager-secrets
+              key: db-password
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: reference-manager-config
+              key: redis-host
+        - name: REDIS_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: reference-manager-config
+              key: redis-port
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: reference-manager-secrets
+              key: redis-password
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          valueFrom:
+            configMapKeyRef:
+              name: reference-manager-config
+              key: kafka-bootstrap-servers
+        - name: JVM_OPTS
+          value: "-Xms1g -Xmx2g -XX:+UseG1GC -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 2000m
+            memory: 2Gi
+        livenessProbe:
+          httpGet:
+            path: /api/actuator/health/liveness
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /api/actuator/health/readiness
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /api/actuator/health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 30
+        volumeMounts:
+        - name: logs
+          mountPath: /app/logs
+        - name: tmp
+          mountPath: /tmp
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+      volumes:
+      - name: logs
+        emptyDir:
+          sizeLimit: 1Gi
+      - name: tmp
+        emptyDir:
+          sizeLimit: 100Mi
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      tolerations:
+      - key: "app"
+        operator: "Equal"
+        value: "uys"
+        effect: "NoSchedule"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reference-manager
+  namespace: uys-prod
+  labels:
+    app: reference-manager
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: reference-manager
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: reference-manager
+  namespace: uys-prod
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: reference-manager-config
+  namespace: uys-prod
+data:
+  redis-host: "redis-service"
+  redis-port: "6379"
+  kafka-bootstrap-servers: "kafka-service:9092"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: reference-manager-secrets
+  namespace: uys-prod
+type: Opaque
+data:
+  db-url: amRiYzpteXNxbDovL215c3FsLXNlcnZpY2U6MzMwNi91eXNfcmVmZXJlbmNl  # base64 encoded
+  db-username: dXlzX3VzZXI=  # base64 encoded: uys_user
+  db-password: dXlzX3Bhc3N3b3Jk  # base64 encoded: uys_password
+  redis-password: c2VjdXJlX3JlZGlzX3Bhc3N3b3Jk  # base64 encoded: secure_redis_password
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: reference-manager-hpa
+  namespace: uys-prod
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: reference-manager
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: reference-manager-ingress
+  namespace: uys-prod
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "1000"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+spec:
+  tls:
+  - hosts:
+    - api.uys.com
+    secretName: uys-tls-secret
+  rules:
+  - host: api.uys.com
+    http:
+      paths:
+      - path: /reference
+        pathType: Prefix
+        backend:
+          service:
+            name: reference-manager
+            port:
+              number: 8080

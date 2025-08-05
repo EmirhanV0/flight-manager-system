@@ -1,0 +1,75 @@
+{
+  "projectName": "UYS - Unified Yield System",
+  "description": "Havacılık sektörü için mikroservis tabanlı uçuş yönetim sistemi",
+  "version": "1.0.0",
+  "rules": {
+    "cursorRules": "UYS_RULES.md",
+    "followUYSRules": true
+  },
+  "services": {
+    "reference-manager": {
+      "port": 8081,
+      "type": "spring-boot",
+      "database": "mysql",
+      "cache": "redis",
+      "messaging": "kafka"
+    },
+    "flight-service": {
+      "port": 8082,
+      "type": "spring-boot",
+      "database": "mysql",
+      "cache": "redis",
+      "messaging": "kafka"
+    },
+    "archive-service": {
+      "port": 8083,
+      "type": "spring-boot",
+      "database": "postgresql",
+      "messaging": "kafka"
+    },
+    "frontend": {
+      "port": 3000,
+      "type": "vue3",
+      "framework": "element-plus"
+    }
+  },
+  "infrastructure": {
+    "kafka": {
+      "brokers": [9092, 9093, 9094],
+      "zookeeper": 2181
+    },
+    "redis": {
+      "port": 6379
+    },
+    "mysql": {
+      "port": 3306
+    },
+    "postgresql": {
+      "port": 5432
+    },
+    "prometheus": {
+      "port": 9090
+    },
+    "grafana": {
+      "port": 3001
+    }
+  },
+  "development": {
+    "javaVersion": "17",
+    "nodeVersion": "18",
+    "mavenVersion": "3.8+",
+    "dockerVersion": "20.10+"
+  },
+  "testing": {
+    "unitTests": true,
+    "integrationTests": true,
+    "e2eTests": true,
+    "testcontainers": true
+  },
+  "monitoring": {
+    "prometheus": true,
+    "grafana": true,
+    "actuator": true,
+    "swagger": true
+  }
+} 
