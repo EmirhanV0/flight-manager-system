@@ -1,0 +1,176 @@
+# =============================================================================
+# UYS Archive Service - Application Configuration
+# =============================================================================
+
+spring:
+  application:
+    name: archive-service
+
+  # =============================================================================
+  # DATABASE CONFIGURATION - PostgreSQL
+  # =============================================================================
+  datasource:
+    url: jdbc:postgresql://localhost:5432/uys_archive?useSSL=false&serverTimezone=UTC
+    username: uys_user
+    password: uys_password
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000
+      max-lifetime: 1200000
+      connection-timeout: 20000
+
+  # =============================================================================
+  # JPA CONFIGURATION - PostgreSQL
+  # =============================================================================
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          batch_size: 50
+          fetch_size: 100
+    open-in-view: false
+
+  # =============================================================================
+  # LIQUIBASE CONFIGURATION
+  # =============================================================================
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    contexts: dev
+
+  # =============================================================================
+  # REDIS CONFIGURATION
+  # =============================================================================
+  redis:
+    host: localhost
+    port: 6379
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1ms
+
+  # =============================================================================
+  # KAFKA CONFIGURATION
+  # =============================================================================
+  kafka:
+    bootstrap-servers: localhost:9092,localhost:9093,localhost:9094
+    consumer:
+      bootstrap-servers: localhost:9092,localhost:9093,localhost:9094
+      group-id: archive-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      enable-auto-commit: false
+      properties:
+        max.poll.records: 100
+        session.timeout.ms: 30000
+
+# =============================================================================
+# SERVER CONFIGURATION
+# =============================================================================
+server:
+  port: 8083
+  servlet:
+    context-path: /api
+
+# =============================================================================
+# MANAGEMENT/ACTUATOR CONFIGURATION
+# =============================================================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# =============================================================================
+# LOGGING CONFIGURATION
+# =============================================================================
+logging:
+  level:
+    com.uys.archive: DEBUG
+    org.springframework.kafka: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/archive-service.log
+    max-size: 100MB
+    max-history: 90
+
+# =============================================================================
+# CACHE CONFIGURATION
+# =============================================================================
+cache:
+  redis:
+    time-to-live: 7200  # 2 hours for archive data
+    cache-null-values: false
+    use-key-prefix: true
+    key-prefix: "uys:archive:"
+
+# =============================================================================
+# SPRINGDOC OPENAPI CONFIGURATION
+# =============================================================================
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    try-it-out-enabled: true
+    filter: true
+    doc-expansion: none
+    operations-sorter: method
+    tags-sorter: alpha
+  group-configs:
+    - group: 'archive-data'
+      display-name: 'Archive Data APIs'
+      paths-to-match: '/**'
+    - group: 'event-logs'
+      paths-to-match: '/event-logs/**'
+      display-name: 'Event Log Management'
+    - group: 'audit-logs'
+      paths-to-match: '/audit-logs/**'
+      display-name: 'Audit Log Management'
+
+# =============================================================================
+# APPLICATION SPECIFIC CONFIGURATION
+# =============================================================================
+app:
+  archive:
+    retention:
+      event-logs-days: 90
+      audit-logs-days: 365
+      data-archive-days: 1095  # 3 years
+    batch:
+      size: 1000
+      cleanup-cron: "0 0 2 * * ?"  # Daily at 2 AM
+    kafka:
+      topics:
+        reference-events: "reference.events"
+        flight-events: "flight.events"
+        system-events: "system.events"

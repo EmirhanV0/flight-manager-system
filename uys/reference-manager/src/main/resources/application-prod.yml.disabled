@@ -1,0 +1,227 @@
+# =============================================================================
+# UYS Reference Manager Service - Production Configuration
+# =============================================================================
+
+spring:
+  application:
+    name: reference-manager-prod
+
+  # =============================================================================
+  # DATABASE CONFIGURATION (Production)
+  # =============================================================================
+  datasource:
+    url: ${DB_URL:jdbc:mysql://mysql-prod:3306/uys_reference?useSSL=true&requireSSL=true&verifyServerCertificate=false}
+    username: ${DB_USERNAME:uys_user}
+    password: ${DB_PASSWORD:uys_password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000
+      max-lifetime: 1200000
+      connection-timeout: 20000
+      validation-timeout: 5000
+      leak-detection-threshold: 60000
+
+  # =============================================================================
+  # JPA CONFIGURATION (Production)
+  # =============================================================================
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: false
+        use_sql_comments: false
+        jdbc:
+          batch_size: 50
+          fetch_size: 100
+        cache:
+          use_second_level_cache: true
+          use_query_cache: true
+          region:
+            factory_class: org.hibernate.cache.ehcache.EhCacheRegionFactory
+    open-in-view: false
+
+  # =============================================================================
+  # LIQUIBASE CONFIGURATION (Production)
+  # =============================================================================
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    contexts: prod
+    drop-first: false
+
+  # =============================================================================
+  # REDIS CONFIGURATION (Production)
+  # =============================================================================
+  redis:
+    host: ${REDIS_HOST:redis-prod}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:}
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 20
+        max-idle: 20
+        min-idle: 5
+        max-wait: 2000ms
+      cluster:
+        refresh:
+          adaptive: true
+          period: 30s
+
+  # =============================================================================
+  # KAFKA CONFIGURATION (Production)
+  # =============================================================================
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka-prod:9092}
+    producer:
+      acks: all
+      retries: 3
+      batch-size: 16384
+      linger-ms: 5
+      buffer-memory: 33554432
+      compression-type: snappy
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 5
+
+# =============================================================================
+# SERVER CONFIGURATION (Production)
+# =============================================================================
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+    min-response-size: 1024
+  http2:
+    enabled: true
+
+# =============================================================================
+# MANAGEMENT/ACTUATOR CONFIGURATION (Production)
+# =============================================================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+      show-components: always
+      probes:
+        enabled: true
+    metrics:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+        step: 60s
+        descriptions: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5, 0.95, 0.99
+      sla:
+        http.server.requests: 100ms, 200ms, 300ms, 500ms, 1s
+
+# =============================================================================
+# LOGGING CONFIGURATION (Production)
+# =============================================================================
+logging:
+  level:
+    root: WARN
+    com.uys.reference: INFO
+    org.springframework.web: WARN
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql.BasicBinder: WARN
+    org.apache.kafka: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%X{traceId:-},%X{spanId:-}] [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%X{traceId:-},%X{spanId:-}] [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: /app/logs/reference-manager.log
+    max-size: 100MB
+    max-history: 30
+    total-size-cap: 1GB
+
+# =============================================================================
+# CACHE CONFIGURATION (Production)
+# =============================================================================
+cache:
+  redis:
+    time-to-live: 3600
+    cache-null-values: false
+    use-key-prefix: true
+    key-prefix: "uys:reference:prod:"
+
+# =============================================================================
+# SECURITY CONFIGURATION (Production)
+# =============================================================================
+security:
+  require-ssl: true
+  headers:
+    frame-options: DENY
+    content-type-options: true
+    xss-protection: true
+    referrer-policy: strict-origin-when-cross-origin
+
+# =============================================================================
+# SPRINGDOC CONFIGURATION (Production)
+# =============================================================================
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+# =============================================================================
+# APPLICATION SPECIFIC CONFIGURATION
+# =============================================================================
+app:
+  environment: production
+  version: ${APP_VERSION:1.0.0}
+  build-time: ${BUILD_TIME:unknown}
+  git-commit: ${GIT_COMMIT:unknown}
+  
+  # Circuit Breaker Configuration
+  circuit-breaker:
+    enabled: true
+    failure-rate-threshold: 50
+    slow-call-rate-threshold: 50
+    slow-call-duration-threshold: 2s
+    wait-duration-in-open-state: 60s
+    sliding-window-size: 100
+    minimum-number-of-calls: 10
+
+  # Rate Limiting
+  rate-limiting:
+    enabled: true
+    requests-per-minute: 1000
+    burst-capacity: 1500
+
+  # Monitoring
+  monitoring:
+    metrics:
+      enabled: true
+      custom-tags:
+        service: reference-manager
+        environment: production
+        version: ${app.version}
+    tracing:
+      enabled: true
+      sample-rate: 0.1

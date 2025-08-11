@@ -1,0 +1,140 @@
+# =============================================================================
+# UYS Reference Manager Service - Docker Profile Configuration
+# =============================================================================
+
+spring:
+  application:
+    name: reference-manager-docker
+  
+  # Database Configuration
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://mysql:3306/uys_reference?useSSL=false&allowPublicKeyRetrieval=true}
+    username: ${SPRING_DATASOURCE_USERNAME:uys_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:uys_password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+        use_sql_comments: true
+  
+  # Liquibase Configuration
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    contexts: docker
+  
+  # Redis Configuration
+  redis:
+    host: ${SPRING_REDIS_HOST:redis}
+    port: ${SPRING_REDIS_PORT:6379}
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1ms
+  
+  # Kafka Configuration
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+          required-acks: 1
+          auto-create-topics: true
+          auto-add-partitions: true
+          configuration:
+            default.key.serde: org.apache.kafka.common.serialization.StringSerde
+            default.value.serde: org.apache.kafka.common.serialization.StringSerde
+            processing.guarantee: exactly_once
+        bindings:
+          airline-events-out:
+            destination: airline-events
+            contentType: application/json
+            producer:
+              partition-count: 3
+              required-acks: 1
+              retries: 3
+              batch-size: 16384
+              linger-ms: 5
+              buffer-memory: 33554432
+          aircraft-events-out:
+            destination: aircraft-events
+            contentType: application/json
+            producer:
+              partition-count: 3
+              required-acks: 1
+              retries: 3
+              batch-size: 16384
+              linger-ms: 5
+              buffer-memory: 33554432
+          station-events-out:
+            destination: station-events
+            contentType: application/json
+            producer:
+              partition-count: 3
+              required-acks: 1
+              retries: 3
+              batch-size: 16384
+              linger-ms: 5
+              buffer-memory: 33554432
+
+# Server Configuration
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+# Management Endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Logging Configuration
+logging:
+  level:
+    com.uys.reference: ${LOGGING_LEVEL_COM_UYS_REFERENCE:INFO}
+    org.springframework.kafka: ${LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_KAFKA:INFO}
+    org.springframework.cloud.stream: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: /app/logs/reference-manager.log
+    max-size: 10MB
+    max-history: 30
+
+# Cache Configuration
+spring:
+  cache:
+    type: redis
+    redis:
+      time-to-live: 300000 # 5 minutes
+      cache-null-values: false 

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.25.xsd">
+
+    <!-- =============================================================================
+         Create Indexes for Performance
+         ============================================================================= -->
+    
+    <changeSet id="004-create-indexes" author="uys-team">
+        <comment>Create indexes for better query performance</comment>
+        
+        <!-- Airline indexes -->
+        <createIndex tableName="airline" indexName="idx_airline_code">
+            <column name="airline_code"/>
+        </createIndex>
+        
+        <createIndex tableName="airline" indexName="idx_airline_active">
+            <column name="active"/>
+        </createIndex>
+        
+        <createIndex tableName="airline" indexName="idx_airline_country">
+            <column name="country"/>
+        </createIndex>
+        
+        <!-- Aircraft indexes -->
+        <createIndex tableName="aircraft" indexName="idx_aircraft_registration">
+            <column name="registration"/>
+        </createIndex>
+        
+        <createIndex tableName="aircraft" indexName="idx_aircraft_active">
+            <column name="active"/>
+        </createIndex>
+        
+        <createIndex tableName="aircraft" indexName="idx_aircraft_airline_id">
+            <column name="airline_id"/>
+        </createIndex>
+        
+        <createIndex tableName="aircraft" indexName="idx_aircraft_type">
+            <column name="aircraft_type"/>
+        </createIndex>
+        
+        <createIndex tableName="aircraft" indexName="idx_aircraft_manufacturer">
+            <column name="manufacturer"/>
+        </createIndex>
+        
+        <!-- Station indexes -->
+        <createIndex tableName="station" indexName="idx_station_code">
+            <column name="station_code"/>
+        </createIndex>
+        
+        <createIndex tableName="station" indexName="idx_station_active">
+            <column name="active"/>
+        </createIndex>
+        
+        <createIndex tableName="station" indexName="idx_station_city">
+            <column name="city"/>
+        </createIndex>
+        
+        <createIndex tableName="station" indexName="idx_station_country">
+            <column name="country"/>
+        </createIndex>
+        
+        <createIndex tableName="station" indexName="idx_station_coordinates">
+            <column name="latitude"/>
+            <column name="longitude"/>
+        </createIndex>
+        
+        <rollback>
+            <dropIndex tableName="airline" indexName="idx_airline_code"/>
+            <dropIndex tableName="airline" indexName="idx_airline_active"/>
+            <dropIndex tableName="airline" indexName="idx_airline_country"/>
+            <dropIndex tableName="aircraft" indexName="idx_aircraft_registration"/>
+            <dropIndex tableName="aircraft" indexName="idx_aircraft_active"/>
+            <dropIndex tableName="aircraft" indexName="idx_aircraft_airline_id"/>
+            <dropIndex tableName="aircraft" indexName="idx_aircraft_type"/>
+            <dropIndex tableName="aircraft" indexName="idx_aircraft_manufacturer"/>
+            <dropIndex tableName="station" indexName="idx_station_code"/>
+            <dropIndex tableName="station" indexName="idx_station_active"/>
+            <dropIndex tableName="station" indexName="idx_station_city"/>
+            <dropIndex tableName="station" indexName="idx_station_country"/>
+            <dropIndex tableName="station" indexName="idx_station_coordinates"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog> 

@@ -1,0 +1,177 @@
+# =============================================================================
+# UYS Flight Service - Application Configuration
+# =============================================================================
+
+spring:
+  application:
+    name: flight-service
+
+  # =============================================================================
+  # DATABASE CONFIGURATION
+  # =============================================================================
+  datasource:
+    url: jdbc:mysql://localhost:3307/uys_flight?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: uys_user
+    password: uys_password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000
+      max-lifetime: 1200000
+      connection-timeout: 20000
+
+  # =============================================================================
+  # JPA CONFIGURATION
+  # =============================================================================
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          batch_size: 20
+          fetch_size: 50
+    open-in-view: false
+
+  # =============================================================================
+  # LIQUIBASE CONFIGURATION
+  # =============================================================================
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    contexts: dev
+
+  # =============================================================================
+  # REDIS CONFIGURATION
+  # =============================================================================
+  redis:
+    host: localhost
+    port: 6379
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1ms
+
+  # =============================================================================
+  # KAFKA CONFIGURATION
+  # =============================================================================
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      acks: 1
+      retries: 3
+      batch-size: 16384
+      linger-ms: 5
+      buffer-memory: 33554432
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: flight-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+# =============================================================================
+# SERVER CONFIGURATION
+# =============================================================================
+server:
+  port: 8082
+  servlet:
+    context-path: /api
+
+# =============================================================================
+# MANAGEMENT/ACTUATOR CONFIGURATION
+# =============================================================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# =============================================================================
+# LOGGING CONFIGURATION
+# =============================================================================
+logging:
+  level:
+    com.uys.flight: DEBUG
+    org.springframework.kafka: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/flight-service.log
+    max-size: 100MB
+    max-history: 30
+
+# =============================================================================
+# CACHE CONFIGURATION
+# =============================================================================
+cache:
+  redis:
+    time-to-live: 3600
+    cache-null-values: false
+    use-key-prefix: true
+    key-prefix: "uys:flight:"
+
+# =============================================================================
+# SPRINGDOC OPENAPI CONFIGURATION
+# =============================================================================
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    try-it-out-enabled: true
+    filter: true
+    doc-expansion: none
+    operations-sorter: method
+    tags-sorter: alpha
+  group-configs:
+    - group: 'flight-data'
+      display-name: 'Flight Data APIs'
+      paths-to-match: '/**'
+    - group: 'flight'
+      paths-to-match: '/flights/**'
+      display-name: 'Flight Management'
+    - group: 'schedule'
+      paths-to-match: '/schedules/**'
+      display-name: 'Schedule Management'
+
+# =============================================================================
+# APPLICATION SPECIFIC CONFIGURATION
+# =============================================================================
+app:
+  reference-manager:
+    base-url: http://localhost:8081/api
+    timeout: 5000
+  flight:
+    search:
+      max-results: 100
+      default-page-size: 20
+    cache:
+      flight-ttl: 1800  # 30 minutes
+      schedule-ttl: 3600  # 1 hour

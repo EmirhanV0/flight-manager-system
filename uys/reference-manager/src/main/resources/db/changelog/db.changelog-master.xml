@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.25.xsd">
+
+    <!-- =============================================================================
+         UYS Reference Manager Database Changelog
+         ============================================================================= -->
+    
+    <!-- Include all changelog files -->
+    <include file="db/changelog/changes/001-create-airline-table.xml"/>
+    <include file="db/changelog/changes/002-create-aircraft-table.xml"/>
+    <include file="db/changelog/changes/003-create-station-table.xml"/>
+    <include file="db/changelog/changes/004-create-indexes.xml"/>
+    <include file="db/changelog/changes/005-insert-initial-data.xml"/>
+
+</databaseChangeLog> 

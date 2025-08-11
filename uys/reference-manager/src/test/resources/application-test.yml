@@ -1,0 +1,141 @@
+# =============================================================================
+# UYS Reference Manager Service - Test Configuration
+# =============================================================================
+
+spring:
+  application:
+    name: reference-manager-test
+  
+  # =============================================================================
+  # DATABASE CONFIGURATION (H2 In-Memory for Tests)
+  # =============================================================================
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+  
+  # =============================================================================
+  # JPA CONFIGURATION
+  # =============================================================================
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: false
+        use_sql_comments: false
+        jdbc:
+          batch_size: 20
+          fetch_size: 50
+    open-in-view: false
+  
+  # =============================================================================
+  # LIQUIBASE CONFIGURATION (Disabled for tests)
+  # =============================================================================
+  liquibase:
+    enabled: false
+  
+  # =============================================================================
+  # REDIS CONFIGURATION (Disabled for tests)
+  # =============================================================================
+  redis:
+    host: localhost
+    port: 6379
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1ms
+  
+  # =============================================================================
+  # KAFKA CONFIGURATION (Disabled for tests)
+  # =============================================================================
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: localhost:9092
+          required-acks: 1
+          auto-create-topics: true
+          auto-add-partitions: true
+        streams:
+          binder:
+            configuration:
+              default.key.serde: org.apache.kafka.common.serialization.StringSerde
+              default.value.serde: org.apache.kafka.common.serialization.StringSerde
+              processing.guarantee: exactly_once
+        bindings:
+          airline-events-out:
+            destination: airline-events
+            contentType: application/json
+            producer:
+              partition-count: 1
+              required-acks: 1
+              retries: 1
+              batch-size: 16384
+              linger-ms: 5
+              buffer-memory: 33554432
+          aircraft-events-out:
+            destination: aircraft-events
+            contentType: application/json
+            producer:
+              partition-count: 1
+              required-acks: 1
+              retries: 1
+              batch-size: 16384
+              linger-ms: 5
+              buffer-memory: 33554432
+          station-events-out:
+            destination: station-events
+            contentType: application/json
+            producer:
+              partition-count: 1
+              required-acks: 1
+              retries: 1
+              batch-size: 16384
+              linger-ms: 5
+              buffer-memory: 33554432
+
+# =============================================================================
+# ACTUATOR CONFIGURATION
+# =============================================================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# =============================================================================
+# LOGGING CONFIGURATION
+# =============================================================================
+logging:
+  level:
+    com.uys.reference: DEBUG
+    org.springframework.cloud.stream: DEBUG
+    org.liquibase: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# =============================================================================
+# SERVER CONFIGURATION
+# =============================================================================
+server:
+  port: 0  # Random port for tests
+  servlet:
+    context-path: /api/v1 

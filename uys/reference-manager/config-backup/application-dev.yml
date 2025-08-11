@@ -1,0 +1,148 @@
+# =============================================================================
+# Development Profile Configuration
+# =============================================================================
+
+spring:
+  # =============================================================================
+  # DATABASE CONFIGURATION (Development)
+  # =============================================================================
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+  
+  # =============================================================================
+  # REDIS CONFIGURATION (Development)
+  # =============================================================================
+  data:
+    redis:
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 4
+          max-idle: 4
+          min-idle: 0
+          max-wait: 1000ms
+  
+  # =============================================================================
+  # KAFKA CONFIGURATION (Development)
+  # =============================================================================
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: localhost:9092
+          required-acks: 1
+          replication-factor: 1
+          auto-create-topics: true
+          auto-add-partitions: true
+        streams:
+          binder:
+            configuration:
+              default.key.serde: org.apache.kafka.common.serialization.StringSerde
+              default.value.serde: org.apache.kafka.common.serialization.StringSerde
+              processing.guarantee: at_least_once
+      bindings:
+        reference-events-out:
+          destination: reference.events
+          contentType: application/json
+          producer:
+            partition-count: 1
+            required-acks: 1
+            retries: 3
+            batch-size: 16384
+            linger-ms: 5
+            buffer-memory: 33554432
+      default:
+        producer:
+          partition-count: 1
+          required-acks: 1
+          retries: 3
+          batch-size: 16384
+          linger-ms: 5
+          buffer-memory: 33554432
+
+# =============================================================================
+# LOGGING CONFIGURATION (Development)
+# =============================================================================
+logging:
+  level:
+    com.uys.reference: INFO
+    org.springframework.cloud.stream: WARN
+    org.springframework.data.redis: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql.BasicBinder: WARN
+    org.springframework.web: INFO
+    org.springframework.security: WARN
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+# =============================================================================
+# MANAGEMENT CONFIGURATION (Development)
+# =============================================================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+      environment: dev
+
+# =============================================================================
+# CACHE CONFIGURATION (Development)
+# =============================================================================
+cache:
+  redis:
+    time-to-live: 1800
+    cache-null-values: false
+    use-key-prefix: true
+    key-prefix: "uys:reference:dev:"
+
+# =============================================================================
+# SECURITY CONFIGURATION (Development) - DISABLED
+# =============================================================================
+# Security completely disabled for development
+# security:
+#   basic:
+#     enabled: false
+#   user:
+#     name: admin
+#     password: admin
+#     roles: ADMIN
+
+# =============================================================================
+# SPRINGDOC OPENAPI CONFIGURATION (Development)
+# =============================================================================
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+    try-it-out-enabled: true
+  info:
+    title: UYS Reference Manager API (Development)
+    description: Reference data management service for UYS project - Development Environment
+    version: 1.0.0-dev
+    contact:
+      name: UYS Development Team
+      email: dev@uys.com
+  servers:
+    - url: http://localhost:8081/api
+      description: Development server
+    - url: http://localhost:8081
+      description: Development server (no context path) 
